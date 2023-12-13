@@ -38,3 +38,30 @@ def update(id):
 @app.route("/songs/<id>.json", methods=["DELETE"])
 def destroy(id):
     return db.songs_destroy_by_id(id)
+
+# Artist routes
+@app.route("/artists.json")
+def artists_index():
+    return db.artists_all()
+
+@app.route("/artists.json", methods=["POST"])
+def artists_create():
+    name = request.form.get("name")
+    bio = request.form.get("bio")
+    return db.artists_create(name, bio)
+
+@app.route("/artists/<id>.json")
+def artists_show(id):
+    return db.artists_find_by_id(id)
+
+@app.route("/artists/<id>.json", methods=["PATCH"])
+def artists_update(id):
+    existing_data = db.artists_find_by_id(id)
+    name = request.form.get("name", existing_data["name"])
+    bio = request.form.get("bio", existing_data["bio"])
+    updated_data = db.artists_update_by_id(id, name, bio)
+    return jsonify(updated_data)
+
+@app.route("/artists/<id>.json", methods=["DELETE"])
+def artists_destroy(id):
+    return db.artists_destroy_by_id(id)
