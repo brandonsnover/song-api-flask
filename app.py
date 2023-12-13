@@ -1,4 +1,4 @@
-from flask import Flask, request
+from flask import Flask, request, jsonify
 from flask_cors import CORS
 import db
 
@@ -27,11 +27,13 @@ def show(id):
 
 @app.route("/songs/<id>.json", methods=["PATCH"])
 def update(id):
-    title = request.form.get("title")
-    artist = request.form.get("artist")
-    album = request.form.get("album")
-    duration = request.form.get("duration")
-    return db.songs_update_by_id(id, title, artist, album, duration)
+    existing_data = db.songs_find_by_id(id)
+    title = request.form.get("title", existing_data["title"])
+    artist = request.form.get("artist", existing_data["artist"])
+    album = request.form.get("album", existing_data["album"])
+    duration = request.form.get("duration", existing_data["duration"])
+    updated_data = db.songs_update_by_id(id, title, artist, album, duration)
+    return jsonify(updated_data)
 
 @app.route("/songs/<id>.json", methods=["DELETE"])
 def destroy(id):
