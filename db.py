@@ -84,7 +84,7 @@ def songs_all():
     rows = conn.execute(
         """
         SELECT songs.*, artists.name AS artist_name, artists.bio AS artist_bio FROM songs
-        JOIN artists ON songs.artist_id = artists.id
+        LEFT JOIN artists ON songs.artist_id = artists.id
         """
     ).fetchall()
     return [dict(row) for row in rows]
@@ -146,7 +146,7 @@ def artists_all():
         """
         SELECT artists.*, GROUP_CONCAT(songs.title, ", ") AS songslist
         FROM artists
-        JOIN songs ON artists.id = songs.artist_id
+        LEFT JOIN songs ON artists.id = songs.artist_id
         GROUP BY artists.id
         """
     ).fetchall()
