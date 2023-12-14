@@ -169,8 +169,11 @@ def artists_find_by_id(id):
     conn = connect_to_db()
     row = conn.execute(
         """
-        SELECT * FROM artists
-        WHERE id = ?
+        SELECT artists.*, GROUP_CONCAT(songs.title, ", ") AS songslist
+        FROM artists
+        JOIN songs ON artists.id = songs.artist_id
+        WHERE artists.id = ?
+        GROUP BY artists.id
         """,
         id,
     ).fetchone()
