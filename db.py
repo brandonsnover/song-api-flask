@@ -113,15 +113,15 @@ def songs_find_by_id(id):
     ).fetchone()
     return dict(row)
 
-def songs_update_by_id(id, title, artist, album, duration):
+def songs_update_by_id(id, title, album, duration, artist_id):
     conn = connect_to_db()
     row = conn.execute(
         """
-        UPDATE songs SET title = ?, artist_id = ?, album = ?, duration = ?
+        UPDATE songs SET title = ?, album = ?, duration = ?, artist_id = ?
         WHERE id = ?
         RETURNING *
         """,
-        (title, artist, album, duration, id),
+        (title, album, duration, artist_id, id),
     ).fetchone()
     conn.commit()
     return dict(row)

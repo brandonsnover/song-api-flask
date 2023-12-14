@@ -16,10 +16,10 @@ def index():
 @app.route("/songs.json", methods=["POST"])
 def create():
     title = request.form.get("title")
-    artist = request.form.get("artist")
+    artist_id = request.form.get("artist_id")
     album = request.form.get("album")
     duration = request.form.get("duration")
-    return db.songs_create(title, artist, album, duration)
+    return db.songs_create(title, album, duration, artist_id)
 
 @app.route("/songs/<id>.json")
 def show(id):
@@ -29,10 +29,10 @@ def show(id):
 def update(id):
     existing_data = db.songs_find_by_id(id)
     title = request.form.get("title", existing_data["title"])
-    artist = request.form.get("artist", existing_data["artist"])
+    artist_id = request.form.get("artist_id", existing_data["artist_id"])
     album = request.form.get("album", existing_data["album"])
     duration = request.form.get("duration", existing_data["duration"])
-    updated_data = db.songs_update_by_id(id, title, artist, album, duration)
+    updated_data = db.songs_update_by_id(id, title, album, duration, artist_id)
     return jsonify(updated_data)
 
 @app.route("/songs/<id>.json", methods=["DELETE"])
