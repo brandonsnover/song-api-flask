@@ -30,9 +30,10 @@ def initial_setup():
     print("Table created successfully")
 
     songs_seed_data = [
-        ("Free Bird", "Pronounced Leh-Nerd Skin-Nerd", "9:11", 1),
-        ("American Girl", "Tom Petty and the Hearbreakers", "3:33", 2),
-        ("The Unforgiven", "The Black Box", "6:28", 3),
+        ("Free Bird", "Pronounced Leh-Nerd Skin-Nerd", "9:11", 3),
+        ("American Girl", "Tom Petty and the Hearbreakers", "3:33", 1),
+        ("The Unforgiven", "The Black Box", "6:28", 2),
+        ("Wildflowers", "Full Moon", "3:21", 1)
     ]
     conn.executemany(
         """
@@ -63,7 +64,7 @@ def initial_setup():
     artists_seed_data = [
         ("Tom Petty", "From Florida"),
         ("Metallica", "From Oregon"),
-        ("Van Halen", "From Heaven"),
+        ("Lynyrd Skynyrd", "From Alabama"),
     ]
     conn.executemany(
         """
@@ -88,15 +89,15 @@ def songs_all():
     ).fetchall()
     return [dict(row) for row in rows]
 
-def songs_create(title, artist, album, duration):
+def songs_create(title, album, duration, artist_id):
     conn = connect_to_db()
     row = conn.execute(
         """
-        INSERT INTO songs (title, artist, album, duration)
+        INSERT INTO songs (title, album, duration, artist_id)
         VALUES (?, ?, ?, ?)
         RETURNING *
         """,
-        (title, artist, album, duration),
+        (title, album, duration, artist_id),
     ).fetchone()
     conn.commit()
     return dict(row)
@@ -116,7 +117,7 @@ def songs_update_by_id(id, title, artist, album, duration):
     conn = connect_to_db()
     row = conn.execute(
         """
-        UPDATE songs SET title = ?, artist = ?, album = ?, duration = ?
+        UPDATE songs SET title = ?, artist_id = ?, album = ?, duration = ?
         WHERE id = ?
         RETURNING *
         """,
@@ -143,7 +144,10 @@ def artists_all():
     conn = connect_to_db()
     rows = conn.execute(
         """
-        SELECT * FROM artists
+        SELECT artists.*, GROUP_CONCAT(songs.title, ", ") AS songslist
+        FROM artists
+        JOIN songs ON artists.id = songs.artist_id
+        GROUP BY artists.id
         """
     ).fetchall()
     return [dict(row) for row in rows]
