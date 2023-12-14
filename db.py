@@ -19,9 +19,10 @@ def initial_setup():
         CREATE TABLE songs (
           id INTEGER PRIMARY KEY NOT NULL,
           title STRING,
-          artist STRING,
           album STRING,
-          duration STRING
+          duration STRING,
+          artist_id INTEGER,
+          FOREIGN KEY (artist_id) REFERENCES artists(id)
         );
         """
     )
@@ -29,13 +30,13 @@ def initial_setup():
     print("Table created successfully")
 
     songs_seed_data = [
-        ("Free Bird", "Lynyrd Skynyrd", "Pronounced Leh-Nerd Skin-Nerd", "9:11"),
-        ("American Girl", "Tom Petty", "Tom Petty and the Hearbreakers", "3:33"),
-        ("The Unforgiven", "Metallica", "The Black Box", "6:28"),
+        ("Free Bird", "Pronounced Leh-Nerd Skin-Nerd", "9:11", 1),
+        ("American Girl", "Tom Petty and the Hearbreakers", "3:33", 2),
+        ("The Unforgiven", "The Black Box", "6:28", 3),
     ]
     conn.executemany(
         """
-        INSERT INTO songs (title, artist, album, duration)
+        INSERT INTO songs (title, album, duration, artist_id)
         VALUES (?,?,?,?)
         """,
         songs_seed_data,
@@ -81,7 +82,8 @@ def songs_all():
     conn = connect_to_db()
     rows = conn.execute(
         """
-        SELECT * FROM songs
+        SELECT songs.*, artists.name AS artist_name, artists.bio AS artist_bio FROM songs
+        JOIN artists ON songs.artist_id = artists.id
         """
     ).fetchall()
     return [dict(row) for row in rows]
